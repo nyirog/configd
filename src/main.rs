@@ -22,6 +22,10 @@ impl ConfigMethod {
             some_string: self.config.some_string.clone(),
         }
     }
+
+    fn set(&mut self, config: Config) -> () {
+        self.config = config
+    }
 }
 
 // Although we use `tokio` here, you can use any async runtime of choice.
