@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-serde = "1.0.228"
+serde = { version = "1.0.228", features = ["derive"] }
 tokio = { version = "1.51.1", features = ["full"] }
-zbus = "5.14.0"
+zbus = { version = "5.14.0" }
+zvariant = { version = "5" }

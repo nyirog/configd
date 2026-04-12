@@ -1,17 +1,9 @@
 use std::{error::Error, future::pending};
 use zbus::{connection, interface};
-use zbus::zvariant::Type;
+use zvariant::{Type, Structure, StructureBuilder};
 use serde::{Serialize, Deserialize};
-use zbus::DBusError;
 
-#[derive(DBusError, Debug)]
-#[zbus(prefix = "org.configd.Config")]
-enum ConfigError {
-    #[zbus(error)]
-    ZBus(zbus::Error),
-}
-
-#[derive(Serialize, Deserialize, Type)]
+#[derive(Serialize, Deserialize, Type, Debug, Clone, PartialEq)]
 struct Config {
     some_int: i64,
     some_string: String,
@@ -22,25 +14,33 @@ struct ConfigMethod {
     applied: bool,
 }
 
+impl From<Config> for Structure<'_> {
+    fn from(value: Config) -> Self {
+        StructureBuilder::new()
+            .add_field(value.some_int)
+            .add_field(value.some_string)
+            .build().unwrap()
+    }
+}
+
 #[interface(name = "org.configd.Config")]
 impl ConfigMethod {
-    // Can be `async` as well.
-    fn get(&mut self) -> Config {
-        Config {
-            some_int: self.config.some_int,
-            some_string: self.config.some_string.clone(),
-        }
-    }
-
-    fn set(&mut self, config: Config) -> Result<(), ConfigError> {
-        self.config = config;
-        self.applied = false;
-        Ok(())
-    }
-
-    fn apply(&mut self) -> Result<(), ConfigError> {
+    fn apply(&mut self) -> zbus::fdo::Result<()> {
         self.applied = true;
         Ok(())
+    }
+
+    #[zbus(property)]
+    fn config(&self) -> Config {
+        self.config.clone()
+    }
+
+    #[zbus(property)]
+    fn set_config(&mut self, config: (i64, String)) {
+        self.config = Config {
+            some_int: config.0,
+            some_string: config.1,
+        };
     }
 }
 
