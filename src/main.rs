@@ -2,6 +2,14 @@ use std::{error::Error, future::pending};
 use zbus::{connection, interface};
 use zbus::zvariant::Type;
 use serde::{Serialize, Deserialize};
+use zbus::DBusError;
+
+#[derive(DBusError, Debug)]
+#[zbus(prefix = "org.configd.Config")]
+enum ConfigError {
+    #[zbus(error)]
+    ZBus(zbus::Error),
+}
 
 #[derive(Serialize, Deserialize, Type)]
 struct Config {
@@ -24,13 +32,15 @@ impl ConfigMethod {
         }
     }
 
-    fn set(&mut self, config: Config) -> () {
+    fn set(&mut self, config: Config) -> Result<(), ConfigError> {
         self.config = config;
         self.applied = false;
+        Ok(())
     }
 
-    fn apply(&mut self) -> () {
+    fn apply(&mut self) -> Result<(), ConfigError> {
         self.applied = true;
+        Ok(())
     }
 }
 
