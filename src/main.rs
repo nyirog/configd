@@ -10,7 +10,8 @@ struct Config {
 }
 
 struct ConfigMethod {
-    config: Config
+    config: Config,
+    applied: bool,
 }
 
 #[interface(name = "org.configd.Config")]
@@ -24,7 +25,12 @@ impl ConfigMethod {
     }
 
     fn set(&mut self, config: Config) -> () {
-        self.config = config
+        self.config = config;
+        self.applied = false;
+    }
+
+    fn apply(&mut self) -> () {
+        self.applied = true;
     }
 }
 
@@ -35,7 +41,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         config: Config {
             some_int: 42,
             some_string: "hello".to_string(),
-        }
+        },
+        applied: true,
     };
     let _conn = connection::Builder::session()?
         .name("org.configd")?
