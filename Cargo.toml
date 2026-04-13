@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+futures = "0.3.32"
+futures-util = "0.3.32"
 serde = { version = "1.0.228", features = ["derive"] }
 tokio = { version = "1.51.1", features = ["full"] }
 zbus = { version = "5.14.0" }
@@ -12,3 +14,7 @@ zvariant = { version = "5" }
 [[bin]]
 name = "config-service"
 path = "src/bin/config_service.rs"
+
+[[bin]]
+name = "configd"
+path = "src/bin/configd.rs"
